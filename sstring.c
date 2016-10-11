@@ -39,8 +39,23 @@ sstring sstring_create_empty ( void ) {
   return res ;
 }
 
-sstring sstring_create_string ( char const * st ) { 
-  return NULL ;
+sstring sstring_create_string(char const* st) { 
+	assert(NULL != st);
+	sstring res = malloc (sizeof(sstring_struct));
+	assert(NULL != res);
+	res->length = strlen(st);
+	res->chars = malloc(sizeof(char) * (res->length));
+	assert(NULL != res->chars);
+	// On parcourt res->chars avec une copie: parcour
+	// A chaque itération i, *parcour prend pour valeur *st
+	char* parcour = res->chars;
+	for (unsigned int i = 0; i < res->length; i++) {
+    *parcour = *st;
+    parcour++;
+    st++;
+  }
+	//ASSERT_SSTRING_OK(res);
+  return res;
 }
 
 
