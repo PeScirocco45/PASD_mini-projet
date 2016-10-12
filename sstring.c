@@ -81,8 +81,20 @@ void sstring_print ( sstring ss ,
 }
 
 
-void sstring_concatenate ( sstring ss1,
-			   sstring ss2 ) { 
+void sstring_concatenate(sstring ss1, sstring ss2) { 
+ 	ASSERT_SSTRING_OK(ss1);
+ 	ASSERT_SSTRING_OK(ss2);
+ 	// On ajoute ss2->chars à la fin de ss1->chars
+ 	realloc(ss1->chars, sizeof(char) * (ss1->length + ss2->length));
+ 	int j = 0;
+ 	for (unsigned int i = ss1->length; i < (ss1->length + ss2->length); i++)
+ 	{
+ 		ss1->chars[i] = ss2->chars[j];
+ 		j++;
+ 	}
+ 	// On ajoute la taille de ss2 à la taille de ss1
+ 	ss1->length += ss2->length;
+ 	ASSERT_SSTRING_OK(ss1);
 }
 
 
@@ -107,9 +119,8 @@ sstring sstring_copy ( sstring ss )
 
 
 
-int sstring_compare ( sstring ss1 ,
-		      sstring ss2 ) {  
-  return 0 ;
+int sstring_compare (sstring ss1, sstring ss2 ) {  
+  return 0;
 }
 
 
@@ -120,9 +131,11 @@ int sstring_get_length ( sstring ss ) {
 }
 
 
-int sstring_get_char ( sstring ss ,
-		       int i ) { 
-  return 0 ;
+int sstring_get_char (sstring ss, int i) { 
+   ASSERT_SSTRING_OK(ss);
+   assert(0 != ss->length);
+   assert((i >= 0) && ((unsigned int) i < ss->length));
+   return ss->chars[i];
 }
 
 
