@@ -48,17 +48,38 @@ typedef struct term_struct {
  * \return true if \c symbol is valid as a term symbol.
  */
 static bool symbol_is_valild ( sstring const symbol ) { 
-  return false ;
+  return ((symbol != "0") && (symbol != " ") && (symbol != "(") && (symbol != ")"));
 }
 
 
 term term_create ( sstring symbol ) { 
-  return NULL ;
+  assert(! sstring_is_empty(symbol));
+  assert (symbol_is_valild(symbol));
+  term t = (term)malloc(sizeof(struct term_struct));
+  t->symbol = symbol;
+  t->arity = 0;
+  t->father = NULL;
+  t->argument_last = NULL;
+  t->argument_first = NULL;
+  return t;
 }
 
 
 
 void term_destroy ( term * t ) { 
+  assert(t != NULL);
+  if (term_get_arity(t)==0) {
+    t->father = NULL;
+    t->symbol = NULL;
+    t->next->previous = t->previous;
+    t->previous->next = t->next;
+    free(t);
+    free(*t)
+  }
+  else {
+    term_destroy(t->argument_first);
+    t->argument_first = t->argument_last->next;
+  }
 }
 
 
@@ -82,17 +103,48 @@ term term_get_father ( term t ) {
 
 void term_add_argument_last ( term t ,
 			      term a ) { 
+  assert(t != NULL);
+  assert(a != NULL);
+  t->argument_last = a;
+  a->father = t;
+  t->arity = t->arity +1;
 }
 
 
 void term_add_argument_first ( term t ,
 			       term a ) { 
+  assert(t != NULL);
+  assert(a != NULL);
+  t->argument_first = a;
+  a->father = t;
+  t->arity = t->arity +1;
 }
 
 
 void term_add_argument_position ( term t ,
 				  term a ,
 				  int pos ) { 
+  assert(t != NULL);
+  assert(a != NULL);
+  assert(0 <= pos);
+  assert(pos <= term_get_arity(t));
+  if (pos == 0){
+    term_add_argument_first(t,a);
+  }
+  else {
+      if (pos == term_get_arity(t)){
+        term_add_argument_last(t,a);
+      }
+      else {
+        term_list temp;
+        temp->t = t;
+        for (int i=1; i<pos; i++){
+          temp->temp->next;
+        }
+        temp->next->previous = a;
+        temp->next = a;
+      }
+  }
 }
 
 
