@@ -136,7 +136,7 @@ void term_add_argument_position ( term t ,
         term_add_argument_last(t,a);
       }
       else {
-        term_list temp;
+        term_list temp = NULL;
         temp->t = t;
         for (int i=1; i<pos; i++){
           temp->temp->next;
@@ -150,7 +150,18 @@ void term_add_argument_position ( term t ,
 
 bool term_contains_symbol ( term t ,
 			    sstring symbol ) { 
-  return false ;
+  assert(t != NULL);
+  assert(symbol != NULL);
+  term_list temp = NULL;
+  temp->t = t->argument_last;
+  if (sstring_compare(t->symbol, symbol) == 0) {
+    return true
+  }
+  else {
+    term_contains_symbol(temp->next, symbol)
+    temp->last = temp->last->next;
+  }
+  return false;
 }
 
 
