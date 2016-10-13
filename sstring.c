@@ -41,20 +41,22 @@ sstring sstring_create_empty ( void ) {
 
 sstring sstring_create_string(char const* st) { 
 	assert(NULL != st);
-	sstring res = malloc (sizeof(sstring_struct));
-	assert(NULL != res);
-	res->length = strlen(st);
-	res->chars = malloc(sizeof(char) * (res->length));
-	assert(NULL != res->chars);
-	// On parcourt res->chars avec une copie: parcour
-	// A chaque itération i, *parcour prend pour valeur *st
-	char* parcour = res->chars;
-	for (unsigned int i = 0; i < res->length; i++) {
-    *parcour = *st;
-    parcour++;
-    st++;
-  }
-	//ASSERT_SSTRING_OK(res);
+	sstring res = sstring_create_empty();
+	//Si *st n'est pas le carractère vide 
+	if (*st != 0) {
+		res->length = strlen(st);
+		res->chars = malloc(sizeof(char) * (res->length));
+		assert(NULL != res->chars);
+		// On parcourt res->chars avec une copie: parcour
+		// A chaque itération i, *parcour prend pour valeur *st
+		char* parcour = res->chars;
+		for (unsigned int i = 0; i < res->length; i++) {
+	    *parcour = *st;
+	    parcour++;
+	    st++;
+	  }
+	}
+	ASSERT_SSTRING_OK(res);
   return res;
 }
 
@@ -84,17 +86,20 @@ void sstring_print ( sstring ss ,
 void sstring_concatenate(sstring ss1, sstring ss2) { 
  	ASSERT_SSTRING_OK(ss1);
  	ASSERT_SSTRING_OK(ss2);
- 	// On ajoute ss2->chars à la fin de ss1->chars
- 	realloc(ss1->chars, sizeof(char) * (ss1->length + ss2->length));
- 	int j = 0;
- 	for (unsigned int i = ss1->length; i < (ss1->length + ss2->length); i++)
- 	{
- 		ss1->chars[i] = ss2->chars[j];
- 		j++;
- 	}
- 	// On ajoute la taille de ss2 à la taille de ss1
- 	ss1->length += ss2->length;
- 	ASSERT_SSTRING_OK(ss1);
+ 	// Si ss2 est vide rien ne se passe
+ 	// Sinon on ajoute ss2->chars à la fin de ss1->chars
+ 	if (!(sstring_is_empty(ss2))) {
+ 		unsigned int new_length = ss1->length + ss2->length;
+ 		ss1->chars = realloc(ss1->chars, sizeof(char) * (new_length));
+	 	unsigned int j = 0;
+	 	for (unsigned int i = ss1->length; i < (new_length); i++)
+	 	{
+	 		ss1->chars[i] = ss2->chars[j];
+	 		j++;
+	 	}
+	 	ss1->length = new_length;
+	 	ASSERT_SSTRING_OK(ss1);
+	}
 }
 
 
@@ -118,11 +123,36 @@ sstring sstring_copy ( sstring ss )
 }
 
 
-
 int sstring_compare (sstring ss1, sstring ss2 ) {  
+  ASSERT_SSTRING_OK(ss1);
+  ASSERT_SSTRING_OK(ss2);
+  // Si ss1 et ss2 sont vide on retourne 0
+  if ((sstring_is_empty(ss1)) && (sstring_is_empty(ss2))) {
+  	return 0;
+  } 
+  // Sinon on récupère la taille de sstring la plus petite avec min_length
+  unsigned int min_length;
+  if (ss1->length < ss2->length) {
+  	min_length = ss1->length;
+  } else {
+  	min_length = ss2->length;
+  }
+  // Pour chaque itération on compare ss1->chars et ss2->chars
+	for (unsigned int i = 0; i < min_length; i++) {
+  	if (ss1->chars[i] < ss2->chars[i]) {
+	  	return -1;
+	 	} else if (ss1->chars[i] > ss2->chars[i]) {
+	 		return 1;
+  	}
+  }
+  // Sinon on compare les tailles de ss1 et ss2
+  if (ss1->length < ss2->length) {
+  	return -1;
+  } else if (ss1->length > ss2->length) {
+  	return 1;
+  } 
   return 0;
 }
-
 
 
 int sstring_get_length ( sstring ss ) {
@@ -133,7 +163,7 @@ int sstring_get_length ( sstring ss ) {
 
 int sstring_get_char (sstring ss, int i) { 
    ASSERT_SSTRING_OK(ss);
-   assert(0 != ss->length);
+   assert(NULL != ss->chars);
    assert((i >= 0) && ((unsigned int) i < ss->length));
    return ss->chars[i];
 }
