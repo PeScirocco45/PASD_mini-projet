@@ -123,22 +123,11 @@ sstring sstring_copy ( sstring ss )
 }
 
 
-int sstring_compare (sstring ss1, sstring ss2 ) {  
+int sstring_compare (sstring ss1, sstring ss2) {  
   ASSERT_SSTRING_OK(ss1);
   ASSERT_SSTRING_OK(ss2);
-  // Si ss1 et ss2 sont vide on retourne 0
-  if ((sstring_is_empty(ss1)) && (sstring_is_empty(ss2))) {
-  	return 0;
-  } 
-  // Sinon on récupère la taille de sstring la plus petite avec min_length
-  unsigned int min_length;
-  if (ss1->length < ss2->length) {
-  	min_length = ss1->length;
-  } else {
-  	min_length = ss2->length;
-  }
   // Pour chaque itération on compare ss1->chars et ss2->chars
-	for (unsigned int i = 0; i < min_length; i++) {
+	for (unsigned int i = 0; (i < ss1->length) && (i < ss2->length); i++) {
   	if (ss1->chars[i] < ss2->chars[i]) {
 	  	return -1;
 	 	} else if (ss1->chars[i] > ss2->chars[i]) {
@@ -161,7 +150,7 @@ int sstring_get_length ( sstring ss ) {
 }
 
 
-int sstring_get_char (sstring ss, int i) { 
+char sstring_get_char (sstring ss, int i) { 
    ASSERT_SSTRING_OK(ss);
    assert(NULL != ss->chars);
    assert((i >= 0) && ((unsigned int) i < ss->length));
