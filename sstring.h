@@ -137,7 +137,7 @@ extern int sstring_get_length ( sstring ss ) ;
  * \pre i is a valid position (assert-ed)
  * \return ith char of the string
  */
-extern int sstring_get_char ( sstring ss ,
+extern char sstring_get_char ( sstring ss ,
 			      int i ) ;
 
 

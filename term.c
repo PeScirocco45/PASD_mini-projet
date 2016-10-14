@@ -52,7 +52,11 @@ static bool symbol_is_valild ( sstring const symbol ) {
 }
 
 
+<<<<<<< HEAD
 term term_create ( sstring symbol ) {
+=======
+/*term term_create ( sstring symbol ) { 
+>>>>>>> origin/master
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
@@ -242,4 +246,4 @@ bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
   return NULL ;
-}
+}*/
