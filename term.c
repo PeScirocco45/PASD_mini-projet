@@ -1,7 +1,7 @@
 # include <stdlib.h>
 # include <ctype.h>
 # include <assert.h>
- 
+
 # include "term.h"
 
 # undef NDEBUG   // FORCE ASSERT ACTIVATION
@@ -42,17 +42,17 @@ typedef struct term_struct {
 
 
 /*!
- * To test whether a \c sstring is a valid symbol. 
+ * To test whether a \c sstring is a valid symbol.
  * This means not empty, no space nor parenthesis.
  * \param symbol sstring to test the validity as an symbol.
  * \return true if \c symbol is valid as a term symbol.
  */
-static bool symbol_is_valild ( sstring const symbol ) { 
+static bool symbol_is_valild ( sstring const symbol ) {
   return ((symbol != "0") && (symbol != " ") && (symbol != "(") && (symbol != ")"));
 }
 
 
-term term_create ( sstring symbol ) { 
+term term_create ( sstring symbol ) {
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
@@ -66,24 +66,29 @@ term term_create ( sstring symbol ) {
 
 
 
-void term_destroy ( term * t ) { 
+void term_destroy ( term * t ) {
   assert(t != NULL);
-  if (term_get_arity(t)==0) {
-    t->father = NULL;
-    t->symbol = NULL;
-    t->next->previous = t->previous;
-    t->previous->next = t->next;
+  term_list temp = NULL;
+  temp->t = (*t);
+  if (term_get_arity(*t)==0) {
+    (*t)->father = NULL;
+    (*t)->symbol = NULL;
+    temp->next->previous = temp->previous;
+    temp->previous->next = temp->next;
+    (*t)->father->arity = (*t)->father->arity -1;
+    free(temp);
     free(t);
-    free(*t)
+    free(*t);
+
   }
   else {
-    term_destroy(t->argument_first);
-    t->argument_first = t->argument_last->next;
+    term_destroy((term)(*t)->argument_first->t);
+    (*t)->argument_first = temp->next;
   }
 }
 
 
-sstring term_get_symbol ( term t ) { 
+sstring term_get_symbol ( term t ) {
   assert ( NULL != t ) ;
   return t -> symbol ;
 }
@@ -102,20 +107,20 @@ term term_get_father ( term t ) {
 
 
 void term_add_argument_last ( term t ,
-			      term a ) { 
+			      term a ) {
   assert(t != NULL);
   assert(a != NULL);
-  t->argument_last = a;
+  t->argument_last = (term_list)a;
   a->father = t;
   t->arity = t->arity +1;
 }
 
 
 void term_add_argument_first ( term t ,
-			       term a ) { 
+			       term a ) {
   assert(t != NULL);
   assert(a != NULL);
-  t->argument_first = a;
+  t->argument_first = (term_list)a;
   a->father = t;
   t->arity = t->arity +1;
 }
@@ -123,7 +128,7 @@ void term_add_argument_first ( term t ,
 
 void term_add_argument_position ( term t ,
 				  term a ,
-				  int pos ) { 
+				  int pos ) {
   assert(t != NULL);
   assert(a != NULL);
   assert(0 <= pos);
@@ -137,64 +142,79 @@ void term_add_argument_position ( term t ,
       }
       else {
         term_list temp = NULL;
+        term_list temp2 = NULL;
         temp->t = t;
+        temp2->t = a;
         for (int i=1; i<pos; i++){
-          temp->temp->next;
+          temp = temp->next;
         }
-        temp->next->previous = a;
-        temp->next = a;
+        temp->next->previous = temp;
+        temp->next = temp;
       }
   }
 }
 
 
 bool term_contains_symbol ( term t ,
-			    sstring symbol ) { 
+			    sstring symbol ) {
   assert(t != NULL);
   assert(symbol != NULL);
   term_list temp = NULL;
-  temp->t = t->argument_last;
+  temp->t = t->argument_last->t;
   if (sstring_compare(t->symbol, symbol) == 0) {
-    return true
+    return true;
   }
   else {
-    term_contains_symbol(temp->next, symbol)
-    temp->last = temp->last->next;
+    term_contains_symbol(temp->next->t, symbol);
+    temp->previous = temp->previous->next;
   }
   return false;
 }
 
 
 term term_get_argument ( term t ,
-			 int pos ) { 
-  return NULL ;
+			 int pos ) {
+  assert(t != NULL);
+  assert(0<= pos);
+  assert(pos<=t->arity);
+  term_list l =  t->argument_first;
+  for(int i=0; i<pos; i++){
+    l = l->next;
+  }
+  return l->t;
 }
 
 
 term term_extract_argument ( term t ,
-			     int pos ) { 
-  return NULL ;
+			     int pos ) {
+  assert(t != NULL);
+  assert(0 <= pos);
+  assert(pos<=t->arity);
+  term temp = term_get_argument(t,pos);
+  term res = temp;
+  term_destroy(temp);
+  return res;
 }
 
 
-term term_copy ( term t ) { 
+term term_copy ( term t ) {
   return NULL ;
 }
 
 
 term term_copy_translate_position ( term t ,
-				    term * loc ) { 
+				    term * loc ) {
   return NULL ;
 }
 
 
 void term_replace_copy ( term t_destination ,
-			 term t_source ) { 
+			 term t_source ) {
 }
 
 
 int term_compare ( term t1 ,
-		   term t2 ) { 
+		   term t2 ) {
   return 0 ;
 }
 
@@ -204,18 +224,18 @@ int term_compare ( term t1 ,
 struct term_argument_traversal_struct {
   term_list tls ;
 } ;
- 
 
-term_argument_traversal term_argument_traversal_create ( term t ) { 
+
+term_argument_traversal term_argument_traversal_create ( term t ) {
   return NULL ;
 }
 
 
-void term_argument_traversal_destroy ( term_argument_traversal * tt ) { 
+void term_argument_traversal_destroy ( term_argument_traversal * tt ) {
 }
 
 
-bool term_argument_traversal_has_next ( term_argument_traversal tt ) { 
+bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
   return false ;
 }
 
