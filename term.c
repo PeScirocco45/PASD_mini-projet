@@ -52,11 +52,7 @@ static bool symbol_is_valild ( sstring const symbol ) {
 }
 
 
-<<<<<<< HEAD
 term term_create ( sstring symbol ) {
-=======
-/*term term_create ( sstring symbol ) { 
->>>>>>> origin/master
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
@@ -111,7 +107,7 @@ term term_get_father ( term t ) {
 
 
 void term_add_argument_last ( term t ,
-			      term a ) {
+            term a ) {
   assert(t != NULL);
   assert(a != NULL);
   t->argument_last = (term_list)a;
@@ -121,7 +117,7 @@ void term_add_argument_last ( term t ,
 
 
 void term_add_argument_first ( term t ,
-			       term a ) {
+             term a ) {
   assert(t != NULL);
   assert(a != NULL);
   t->argument_first = (term_list)a;
@@ -131,8 +127,8 @@ void term_add_argument_first ( term t ,
 
 
 void term_add_argument_position ( term t ,
-				  term a ,
-				  int pos ) {
+          term a ,
+          int pos ) {
   assert(t != NULL);
   assert(a != NULL);
   assert(0 <= pos);
@@ -160,7 +156,7 @@ void term_add_argument_position ( term t ,
 
 
 bool term_contains_symbol ( term t ,
-			    sstring symbol ) {
+          sstring symbol ) {
   assert(t != NULL);
   assert(symbol != NULL);
   term_list temp = NULL;
@@ -177,7 +173,7 @@ bool term_contains_symbol ( term t ,
 
 
 term term_get_argument ( term t ,
-			 int pos ) {
+       int pos ) {
   assert(t != NULL);
   assert(0<= pos);
   assert(pos<=t->arity);
@@ -190,7 +186,7 @@ term term_get_argument ( term t ,
 
 
 term term_extract_argument ( term t ,
-			     int pos ) {
+           int pos ) {
   assert(t != NULL);
   assert(0 <= pos);
   assert(pos<=t->arity);
@@ -207,18 +203,18 @@ term term_copy ( term t ) {
 
 
 term term_copy_translate_position ( term t ,
-				    term * loc ) {
+            term * loc ) {
   return NULL ;
 }
 
 
 void term_replace_copy ( term t_destination ,
-			 term t_source ) {
+       term t_source ) {
 }
 
 
 int term_compare ( term t1 ,
-		   term t2 ) {
+       term t2 ) {
   return 0 ;
 }
 
@@ -246,4 +242,4 @@ bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
   return NULL ;
-}*/
+}
