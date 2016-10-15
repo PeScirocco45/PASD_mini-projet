@@ -221,25 +221,45 @@ int term_compare ( term t1 ,
 
 
 
+
 struct term_argument_traversal_struct {
   term_list tls ;
 } ;
 
 
 term_argument_traversal term_argument_traversal_create ( term t ) {
-  return NULL ;
+  assert ( NULL != t ) ;
+  term_argument_traversal nouv = ( term_argument_traversal ) malloc ( sizeof ( struct term_argument_traversal_struct ) ) ;
+  assert ( NULL != nouv ) ;
+  term_list pt = t -> argument_first ;
+  term_list ptbis = t -> argument_first ;
+  nouv -> tls = ( term_list ) malloc ( sizeof ( struct term_list_struct ) ) ;
+  assert ( NULL != pt ) ;
+  while ( pt != NULL  ) {
+    nouv -> tls = pt ;
+    pt = pt -> next ;
+  }
+  nouv -> tls = pt ;
+/*  free ( pt ) ;
+  free ( ptbis ) ;*/
+  return nouv ;
 }
 
 
 void term_argument_traversal_destroy ( term_argument_traversal * tt ) {
+  assert ( NULL != * tt ) ;
+
 }
 
 
 bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
+  assert ( NULL != tt ) ;
+  if ( tt -> next != NULL ) return true ;
   return false ;
 }
 
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
+  assert ( NULL != tt ) ;
   return NULL ;
 }
