@@ -248,18 +248,21 @@ term_argument_traversal term_argument_traversal_create ( term t ) {
 
 void term_argument_traversal_destroy ( term_argument_traversal * tt ) {
   assert ( NULL != * tt ) ;
-
+  term * t = NULL ;
+  term_destroy ( t ) ;
+  free ( * t ) ;
+  free ( t ) ;
 }
 
 
 bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
   assert ( NULL != tt ) ;
-  if ( tt -> next != NULL ) return true ;
+  if ( tt -> tls -> next != NULL ) return true ;
   return false ;
 }
 
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
   assert ( NULL != tt ) ;
-  return NULL ;
+  return tt -> tls -> next -> t ;
 }
