@@ -110,7 +110,7 @@ void term_add_argument_last ( term t ,
             term a ) {
   assert(t != NULL);
   assert(a != NULL);
-  t->argument_last = (term_list)a;
+  t->argument_last->t = a;
   a->father = t;
   t->arity = t->arity +1;
 }
@@ -198,7 +198,21 @@ term term_extract_argument ( term t ,
 
 
 term term_copy ( term t ) {
-  return NULL ;
+    assert(t != NULL);
+    term_list courant = NULL;
+    term nouv = term_create(t->symbol);
+    int cpt = term_get_arity(t);
+    if (cpt ==0 ){
+        return nouv;
+    }
+    else {
+        courant = t->argument_first;
+        term_add_argument_last(t,courant->t);
+        cpt = cpt-1;
+        courant = courant->next;
+        term_copy(courant->t);
+    }
+
 }
 
 
@@ -210,6 +224,12 @@ term term_copy_translate_position ( term t ,
 
 void term_replace_copy ( term t_destination ,
        term t_source ) {
+    assert(t_destination != NULL);
+    assert(t_source != NULL);
+    term * add =  t_destination;
+    t_source->father = t_destination->father;
+    term_destroy(t_destination);
+    *add = t_source;
 }
 
 
