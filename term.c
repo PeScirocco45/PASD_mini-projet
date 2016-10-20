@@ -1,7 +1,6 @@
 # include <stdlib.h>
 # include <ctype.h>
 # include <assert.h>
-# include <ctype.h> //on se sert de isspace() dans symbol_is_valild
 
 # include "term.h"
 
@@ -52,7 +51,16 @@ static bool symbol_is_valild ( sstring const symbol ) {
   ss1 = sstring_create_empty();
   ss2 = sstring_create_string('(');
   ss3 = sstring_create_string(')');
-  return ((sstring_compare(symbol, ss1) != 0) && (!isspace(sstring_get_char(symbol, 0))) && (sstring_compare(ss2, symbol) != 0) && (sstring_compare(ss3, symbol)));
+  boolean res = true;
+  for (int i=0; i<sstring_get_length(symbol); i++){
+      res = ((sstring_compare(symbol, ss1) != 0) && (!isspace(sstring_get_char(symbol, 0))) && (sstring_compare(ss2, symbol) != 0) && (sstring_compare(ss3, symbol)));
+  }
+  sstring_destroy(&ss1);
+  sstring_destroy(&ss2);
+  sstring_destroy(&ss3);
+  return res;
+
+
 }
 
 
