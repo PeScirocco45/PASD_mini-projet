@@ -29,6 +29,7 @@ bool sstring_is_empty ( sstring ss ) {
   ASSERT_SSTRING_OK ( ss ) ;
   return 0 == ss -> length ;
 }
+ 
 
 sstring sstring_create_empty ( void ) {
   sstring res = malloc ( sizeof ( sstring_struct ) ) ;
@@ -39,6 +40,7 @@ sstring sstring_create_empty ( void ) {
   return res ;
 }
 
+
 sstring sstring_create_string(char const* st) { 
 	assert(NULL != st);
 	sstring res = sstring_create_empty();
@@ -47,14 +49,7 @@ sstring sstring_create_string(char const* st) {
 		res->length = strlen(st);
 		res->chars = malloc(sizeof(char) * (res->length));
 		assert(NULL != res->chars);
-		// On parcourt res->chars avec une copie: parcour
-		// A chaque itération i, *parcour prend pour valeur *st
-		char* parcour = res->chars;
-		for (unsigned int i = 0; i < res->length; i++) {
-	    *parcour = *st;
-	    parcour++;
-	    st++;
-	  }
+		memcpy(res->chars, st, res->length);
 	}
 	ASSERT_SSTRING_OK(res);
   return res;
@@ -158,7 +153,21 @@ char sstring_get_char (sstring ss, int i) {
 }
 
 
-bool sstring_is_integer ( sstring ss ,
-			  int * n_pt ) { 
-  return false ;
+bool sstring_is_integer(sstring ss, int* n_pt) { 
+  int res = 0;
+  // Si ss est vide alors on retourne false
+  if (sstring_is_empty(ss)) {
+  	return false;
+  }
+  // Sinon on parcour ss-chars 
+  // On vérifie qu'il contient des chiffres avec isdigit
+  for(unsigned int i = 0; i < ss->length; i++) {
+    if (isdigit(ss->chars[i])) {
+      res = res * 10 + ss->chars[i] - '0';
+    } else {
+      return false;
+    }
+  }
+  *n_pt = res;
+  return true ;
 }
