@@ -1,6 +1,7 @@
 # include <stdlib.h>
 # include <ctype.h>
 # include <assert.h>
+# include <ctype.h> //on se sert de isspace() dans symbol_is_valild
 
 # include "term.h"
 
@@ -48,7 +49,10 @@ typedef struct term_struct {
  * \return true if \c symbol is valid as a term symbol.
  */
 static bool symbol_is_valild ( sstring const symbol ) {
-  return ((symbol != "0") && (symbol != " ") && (symbol != "(") && (symbol != ")"));
+  ss1 = sstring_create_empty();
+  ss2 = sstring_create_string('(');
+  ss3 = sstring_create_string(')');
+  return ((sstring_compare(symbol, ss1) != 0) && (!isspace(sstring_get_char(symbol, 0))) && (sstring_compare(ss2, symbol) != 0) && (sstring_compare(ss3, symbol)));
 }
 
 
