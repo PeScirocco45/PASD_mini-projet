@@ -2,14 +2,12 @@
 # include <ctype.h>
 # include <assert.h>
 
- 
 # include "term_variable.h"
 
 
 bool term_is_variable ( term t ) {
 	assert(t != NULL);
-	assert(term_get_arity(t) == 0);
-  return sstring_get_char(term_get_symbol(t),0) == '\'' ;
+  return ((term_get_arity(t) == 0) && (sstring_get_char(term_get_symbol(t),0) == '\''));
 }
 
 
@@ -18,6 +16,9 @@ void term_replace_variable ( term t ,
 			     sstring variable ,
 			     term value ) { 
 	assert(t != NULL);
+	assert(variable != NULL);
+	assert(!(sstring_is_empty(variable)));
+	assert(value != NULL);
 	//Cas où le terme est une variable (Cas d'arrêt)
 	if (term_is_variable(t)) {
 		if (term_contains_symbol(t,variable)){
