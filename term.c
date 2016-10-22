@@ -48,10 +48,12 @@ typedef struct term_struct {
  * \return true if \c symbol is valid as a term symbol.
  */
 static bool symbol_is_valild ( sstring const symbol ) {
-  ss1 = sstring_create_empty();
-  ss2 = sstring_create_string('(');
-  ss3 = sstring_create_string(')');
-  boolean res = true;
+  sstring ss1 = sstring_create_empty();
+  char const * c1 = "(";
+  sstring ss2 = sstring_create_string(c1);
+  char const * c2 = ")";
+  sstring ss3 = sstring_create_string(c2);
+  bool res = true;
   for (int i=0; i<sstring_get_length(symbol); i++){
       res = ((sstring_compare(symbol, ss1) != 0) && (!isspace(sstring_get_char(symbol, 0))) && (sstring_compare(ss2, symbol) != 0) && (sstring_compare(ss3, symbol)));
   }
@@ -91,10 +93,9 @@ void term_destroy ( term * t ) {
     free(temp);
     free(t);
     free(*t);
-
   }
   else {
-    term_destroy((term)(*t)->argument_first->t);
+    term_destroy(&(*t)->argument_first->t);
     (*t)->argument_first = temp->next;
   }
 }
@@ -204,27 +205,21 @@ term term_extract_argument ( term t ,
   assert(pos<=t->arity);
   term temp = term_get_argument(t,pos);
   term res = temp;
-  term_destroy(temp);
+  term_destroy(&temp);
   return res;
 }
 
 
 term term_copy ( term t ) {
     assert(t != NULL);
-    term_list courant = NULL;
     term nouv = term_create(t->symbol);
-    int cpt = term_get_arity(t);
-    if (cpt ==0 ){
-        return nouv;
-    }
-    else {
-        courant = t->argument_first;
-        term_add_argument_last(t,courant->t);
-        cpt = cpt-1;
-        courant = courant->next;
-        term_copy(courant->t);
-    }
-
+    nouv->father = t->father;
+	term_argument_traversal courant = term_argument_traversal_create(t);
+	while(term_argument_traversal_has_next(courant)){
+        term_add_argument_last(nouv,term_copy(term_argument_traversal_get_next(courant)));
+	}
+	term_argument_traversal_destroy(&courant);
+	return nouv;
 }
 
 
@@ -238,16 +233,39 @@ void term_replace_copy ( term t_destination ,
        term t_source ) {
     assert(t_destination != NULL);
     assert(t_source != NULL);
-    term * add =  t_destination;
+    term * add = &t_destination;
     t_source->father = t_destination->father;
-    term_destroy(t_destination);
+    term_destroy(&t_destination);
     *add = t_source;
 }
 
 
 int term_compare ( term t1 ,
        term t2 ) {
-  return 0 ;
+    assert(t1 != NULL);
+    assert(t2 != NULL);
+  if (sstring_compare(t1->symbol, t2->symbol) == -1){
+        return -1;
+  }
+  else {
+    if (sstring_compare(t1->symbol, t2->symbol) == 1){
+        return 1;
+    }
+    else {
+        if (term_get_arity(t1)<term_get_arity(t2)){
+            return -1;
+        }
+        else {
+            if (term_get_arity(t1)>term_get_arity(t2)){
+                return 1;
+            }
+            else {
+                term_compare(t1->argument_first->t, t2->argument_first->t);
+            }
+        }
+    }
+   }
+   return 0;
 }
 
 
