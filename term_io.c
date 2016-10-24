@@ -2,7 +2,7 @@
 # include <ctype.h>
 # include <assert.h>
 
- 
+
 # include "term_io.h"
 
 
@@ -27,8 +27,48 @@ static inline void skip_space ( FILE * in ) {
  * Scan a sequence of non space and non parenthesis (symbol) of unbounded length.
  * if next non space char is '(' then it scans arguments.
  */
-term term_scan ( FILE * in ) { 
-  return NULL ;
+term term_scan ( FILE * in ) {
+  sstring parOuv = sstring_create_string ( "(" ) ;
+  sstring parFer = sstring_create_string ( ")" ) ;
+  char c ;
+  char d ;
+  sstring n ;
+  char * nom ;
+  bool source = true ;
+
+  while ( EOF != ( c = getc ( in ) ) ) {
+  	if ( source ) {
+			sstring prem = sstring sstring_create_string (  ) ;
+			term nouv = term_create( prem );
+			source = false;
+		} else {
+			while ( ! isspace ( d = getc ( in ) ) ) {
+      	cpt += cpt ;
+   		}
+		}
+	}
+	return nouv ;
+
+
+
+
+
+  while ( EOF != ( c = getc ( in ) ) ) {
+      int cpt = 1 ;
+    
+    n = sstring_create_string ( nom ) ;
+    nom = (char*)malloc(cpt * sizeof(char*)) ;
+    if ( ! isspace ( c ) ) { // on doit comparer le caractère
+      printf ( "%c" , c ) ;
+
+
+
+    } else { // pass au char suivant
+      printf ( "%c" , c ) ;
+    }
+    skip_space( in ) ;
+  }
+  return nouv ;
 }
 
 
@@ -54,12 +94,12 @@ static inline void add_space_prefix ( int n ,
  */
 static void term_print_expanded_rec ( term const t ,
 				      FILE * const out ,
-				      int const depth ) { 
+				      int const depth ) {
 }
 
 
 void term_print_expanded ( term t ,
-			   FILE * out ) { 
+			   FILE * out ) {
   assert ( NULL != t ) ;
   assert ( NULL != out ) ;
   term_print_expanded_rec ( t , out , 0 ) ;
@@ -72,7 +112,7 @@ void term_print_expanded ( term t ,
  * \param out output stream to print to.
  */
 static void term_print_compact_rec ( term const t ,
-				     FILE * const out ) { 
+				     FILE * const out ) {
 }
 
 
@@ -82,4 +122,3 @@ void term_print_compact ( term t ,
   assert ( NULL != out ) ;
   term_print_compact_rec ( t , out ) ;
 }
-
