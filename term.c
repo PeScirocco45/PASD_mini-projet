@@ -279,29 +279,21 @@ struct term_argument_traversal_struct {
 
 term_argument_traversal term_argument_traversal_create ( term t ) {
   assert ( NULL != t ) ;
+  // On creer un term_argument_traversal nouv
   term_argument_traversal nouv = ( term_argument_traversal ) malloc ( sizeof ( struct term_argument_traversal_struct ) ) ;
   assert ( NULL != nouv ) ;
-  term_list pt = t -> argument_first ;
-  term_list ptbis = t -> argument_first ;
-  nouv -> tls = ( term_list ) malloc ( sizeof ( struct term_list_struct ) ) ;
-  assert ( NULL != pt ) ;
-  while ( pt != NULL  ) {
-    nouv -> tls = pt ;
-    pt = pt -> next ;
-  }
-  nouv -> tls = pt ;
-/*  free ( pt ) ;
-  free ( ptbis ) ;*/
+  // On donne pour valeur à nouv -> tls la valeur de argument_first de t
+  nouv -> tls = t -> argument_first ;
   return nouv ;
 }
 
 
 void term_argument_traversal_destroy ( term_argument_traversal * tt ) {
+  assert( NULL != tt ) ;
   assert ( NULL != * tt ) ;
-  term * t = NULL ;
-  term_destroy ( t ) ;
-  free ( * t ) ;
-  free ( t ) ;
+  ( * tt ) -> tls = NULL ;
+  free( * tt ) ;
+  *tt = NULL ;
 }
 
 
@@ -314,5 +306,7 @@ bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
   assert ( NULL != tt ) ;
-  return tt -> tls -> next -> t ;
+  // On t -> tls prend pour valeur la term_list next de tt -> tls 
+  tt -> tls = tt -> tls -> next;
+  return tt -> tls -> t ;
 }

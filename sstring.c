@@ -5,6 +5,7 @@
 
 # include "sstring.h"
 
+
 # undef NDEBUG    // FORCE ASSERT ACTIVATION
 
 

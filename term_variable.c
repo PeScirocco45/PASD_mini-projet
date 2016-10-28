@@ -27,7 +27,7 @@ void term_replace_variable ( term t ,
 	//Cas général où l'on parcours la liste d'arguments d'un terme et on applique la foncton récursivement
 	}else{
 		term_argument_traversal traversal = term_argument_traversal_create(t);
-		term arg = term_get_argumment(t,0);
+		term arg = term_get_argument(t,0);
 		term_replace_variable(arg,variable,value);
 		while(term_argument_traversal_has_next(traversal)){
 			arg = term_argument_traversal_get_next(traversal);
