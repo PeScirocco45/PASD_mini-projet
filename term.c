@@ -70,7 +70,7 @@ term term_create ( sstring symbol ) {
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
-  t->symbol = symbol;
+  t->symbol = sstring_copy(symbol);
   t->arity = 0;
   t->father = NULL;
   t->argument_last = NULL;
