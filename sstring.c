@@ -33,7 +33,7 @@ bool sstring_is_empty ( sstring ss ) {
  
 
 sstring sstring_create_empty ( void ) {
-  sstring res = malloc ( sizeof ( sstring_struct ) ) ;
+  sstring res = (sstring) malloc ( sizeof ( sstring_struct ) ) ;
   assert ( NULL != res ) ;
   res -> length = 0 ;
   res -> chars = NULL ;
@@ -48,7 +48,7 @@ sstring sstring_create_string(char const* st) {
 	//Si *st n'est pas le carractère vide 
 	if (*st != 0) {
 		res->length = strlen(st);
-		res->chars = malloc(sizeof(char) * (res->length));
+		res->chars = (char*) malloc(sizeof(char) * (res->length));
 		assert(NULL != res->chars);
 		memcpy(res->chars, st, res->length);
 	}
@@ -86,7 +86,7 @@ void sstring_concatenate(sstring ss1, sstring ss2) {
  	// Sinon on ajoute ss2->chars à la fin de ss1->chars
  	if (!(sstring_is_empty(ss2))) {
  		unsigned int new_length = ss1->length + ss2->length;
- 		ss1->chars = realloc(ss1->chars, sizeof(char) * (new_length));
+ 		ss1->chars = (char*) realloc(ss1->chars, sizeof(char) * (new_length));
 	 	unsigned int j = 0;
 	 	for (unsigned int i = ss1->length; i < (new_length); i++)
 	 	{
@@ -105,10 +105,10 @@ sstring sstring_copy ( sstring ss )
   if ( sstring_is_empty ( ss ) ) {
     return sstring_create_empty () ;
   } else {
-    sstring res = malloc ( sizeof ( sstring_struct ) ) ;
+    sstring res = (sstring) malloc ( sizeof ( sstring_struct ) ) ;
     assert ( NULL != res ) ;
     res -> length = ss -> length ;
-    res -> chars = malloc ( res -> length * sizeof ( char ) ) ;
+    res -> chars = (char*) malloc ( res -> length * sizeof ( char ) ) ;
     assert ( NULL != res -> chars ) ;
     for ( unsigned int i = 0 ; i < res -> length ; i ++ ) {
       res -> chars [ i ] = ss -> chars [ i ] ;

@@ -32,41 +32,36 @@ term term_scan ( FILE * in ) {
   term * a = & nouv ;
   char c ;
   int cpt ;
-  while ( EOF != ( c = getc ( in ) ) ) {
-    //if ( c == ')' ) break ; //a voir quoi faire quand ')'
-    cpt = 0 ;
-    if ( ispunct ( c ) || isalnum ( c ) ) {
-      if ( c == '(' || c == ')' ){  //ici on lance la creation des fils
-        printf( "()" ) ;
-        if ( c == '(' ){
-            printf ( "aaaaaaa" ) ;
-          term_add_argument_last ( * a , term_scan( in ) ) ;
-        } else {
-          printf ( "bbbbbbb" ) ;
-          //a voir quoi faire quand ')'
-        }
-      } else {
-        char * d = (char *)malloc(100 * sizeof(char)) ;
-        char * pt = d ;
-        do{
-          printf( "%c" , c ) ;
-          cpt++ ;
-          * pt = c ;
-          pt++ ;
-          c = getc ( in ) ;
-        }while ( c != ' ' && EOF != c ) ;
+  if ( EOF != ( c = getc ( in ) ) ) {
+    if ( !( c == '(' ) && !( c == ')') ) {
+      char * d = (char *)malloc(100 * sizeof(char)) ;
+      char * pt = d ;
+      do{
+        printf( "%c" , c ) ;
+        cpt++ ;
+        * pt = c ;
+        pt++ ;
+      }while ( ' ' != ( c = getc ( in ) ) && EOF != c ) ;
+      ungetc ( c , in ) ;
+      printf ( "%d" , cpt ) ;
+      ss = sstring_create_string ( d ) ;
+      nouv = term_create ( ss ) ;
+      skip_space ( in ) ;
+    }
+    if ( ( c = getc ( in ) ) == '(' ) {
+      while ( EOF != ( c = getc ( in ) ) ) {
+          if (c == ')' ) {
+            break ;
+          }
         ungetc ( c , in ) ;
-        printf ( "%d" , cpt ) ;
-        ss = sstring_create_string ( d ) ;
-        nouv = term_create ( ss ) ;
-        //* a = nouv ;
-        //free( * d ) ;
-        free ( d ) ;
+        skip_space ( in ) ;
+        term_add_argument_last ( * a , term_scan( in ) ) ;
       }
     } else {
-      printf( "  " ) ;
+      ungetc ( c , in ) ;
+      skip_space ( in ) ;
     }
-	}
+  }
 	return nouv ;
 }
 
@@ -82,7 +77,6 @@ static inline void add_space_prefix ( int n ,
     fputs ( "  " , out ) ;
   }
 }
-
 
 
 /*!
@@ -111,15 +105,14 @@ static void term_print_expanded_rec(term const t, FILE* const out, int const dep
 		term_print_expanded_rec(term_get_argument(t, 0), out, depth + 1);
 		term_argument_traversal arguments = term_argument_traversal_create(t);
 		while (term_argument_traversal_has_next(arguments)) {
-			fputs("\n", out);
 			add_space_prefix(depth + 1, out);
 			term_print_expanded_rec(term_argument_traversal_get_next(arguments), out, depth + 1);
 		}
 		// On saute une ligne, on indente, et on affiche ")" dans out
-		fputs("\n", out);
 		add_space_prefix(depth, out);
 		fputs(")", out);
 	}
+	printf("\n");
 }
 
 

@@ -7,7 +7,7 @@
 
 bool term_is_variable ( term t ) {
 	assert(t != NULL);
-  return ((term_get_arity(t) == 0) && (sstring_get_char(term_get_symbol(t),0) == '\''));
+  return ((term_get_arity(t) == 0) && (sstring_get_length(term_get_symbol(t)) >= 2) && (sstring_get_char(term_get_symbol(t),0) == '\''));
 }
 
 
