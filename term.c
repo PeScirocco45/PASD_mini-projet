@@ -70,7 +70,7 @@ term term_create ( sstring symbol ) {
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
-  t->symbol = sstring_copy(symbol);
+  t->symbol = symbol;
   t->arity = 0;
   t->father = NULL;
   t->argument_last = NULL;
@@ -82,22 +82,15 @@ term term_create ( sstring symbol ) {
 
 void term_destroy ( term * t ) {
   assert(t != NULL);
-  term_list temp = NULL;
-  temp->t = (*t);
-  if (term_get_arity(*t)==0) {
-    (*t)->father = NULL;
-    (*t)->symbol = NULL;
-    temp->next->previous = temp->previous;
-    temp->previous->next = temp->next;
-    (*t)->father->arity = (*t)->father->arity -1;
-    free(temp);
-    free(t);
-    free(*t);
+  sstring_destroy(&(*t)->symbol);
+  int cpt = 0;
+  while(term_get_arity(*t) != 0){
+    term temp = term_extract_argument((*t),cpt);
+    term_destroy(&temp);
+    (*t)->arity = (*t)->arity - 1;
+    cpt ++;
   }
-  else {
-    term_destroy(&(*t)->argument_first->t);
-    (*t)->argument_first = temp->next;
-  }
+  free(*t);
 }
 
 
@@ -120,22 +113,44 @@ term term_get_father ( term t ) {
 
 
 void term_add_argument_last ( term t ,
-            term a ) {
-  assert(t != NULL);
-  assert(a != NULL);
-  t->argument_last->t = a;
-  a->father = t;
-  t->arity = t->arity +1;
+           term a ) {
+ assert(t != NULL);
+ assert(a != NULL);
+ term_list l = (term_list)malloc(sizeof(struct term_list_struct));
+ l -> t = a ;
+ l -> previous = NULL ;
+ l -> next = NULL ;
+ if ( t -> arity == 0 ) {
+   t -> argument_first = l ;
+   t -> argument_last = l ;
+   t -> arity = 1 ;
+ } else {
+ t -> argument_last -> next = l ;
+ t -> argument_last = l ;
+ a -> father = t ;
+ t -> arity = t -> arity + 1 ;
+ }
 }
 
 
 void term_add_argument_first ( term t ,
              term a ) {
-  assert(t != NULL);
-  assert(a != NULL);
-  t->argument_first = (term_list)a;
-  a->father = t;
-  t->arity = t->arity +1;
+ assert(t != NULL);
+ assert(a != NULL);
+ term_list l = (term_list)malloc(sizeof(struct term_list_struct));
+ l -> t = a ;
+ l -> previous = NULL ;
+ l -> next = NULL ;
+ if ( t -> arity == 0 ) {
+   t -> argument_first = l ;
+   t -> argument_last = l ;
+   t -> arity = 1 ;
+ } else {
+ t -> argument_first -> previous = l ;
+ t -> argument_first = l ;
+ a -> father = t ;
+ t -> arity = t -> arity + 1 ;
+ }
 }
 
 
@@ -164,6 +179,7 @@ void term_add_argument_position ( term t ,
         temp->next->previous = temp;
         temp->next = temp;
       }
+     t->arity = t->arity +1;
   }
 }
 
@@ -203,10 +219,33 @@ term term_extract_argument ( term t ,
   assert(t != NULL);
   assert(0 <= pos);
   assert(pos<=t->arity);
-  term temp = term_get_argument(t,pos);
-  term res = temp;
-  term_destroy(&temp);
-  return res;
+  term_list pt = t -> argument_first ;
+  int cpt = 0 ;
+  while ( cpt != pos ) {
+    * pt = * pt -> next ;
+    cpt++ ;
+  }
+  if ( term_get_arity ( t ) == 1 ) {
+    t -> argument_first = NULL ;
+    t -> argument_last = NULL ;
+  } else {
+    if ( cpt == 0 ) {
+      pt -> next -> previous = NULL ;
+      t -> argument_first = pt -> next ;
+
+    } else if ( cpt == ( term_get_arity ( t ) - 1 ) ) {
+      pt -> previous -> next = NULL ;
+      t -> argument_last = pt -> previous ;
+    } else {
+      pt -> next -> previous = pt -> previous ;
+      pt -> previous -> next = pt -> next ;
+      pt -> next = NULL ;
+      pt -> previous = NULL ;
+    }
+  }
+  term res = term_copy ( pt -> t ) ;
+  free ( pt ) ;
+  return res ;
 }
 
 
@@ -225,7 +264,20 @@ term term_copy ( term t ) {
 
 term term_copy_translate_position ( term t ,
             term * loc ) {
-  return NULL ;
+  assert(t != NULL);
+  assert(*loc != NULL);
+  term c = term_copy(t);
+  if(term_contains_symbol(c,*loc->symbol)){
+    term_argument_traversal courant = term_argument_traversal_create(c);
+    while(term_argument_traversal_has_next(courant)){
+        courant = term_argument_traversal_next(courant);
+        if(sstring_compare(courant->symbol,*loc->symbol)){
+          *loc = courant;
+          return c;
+        }
+    }
+  }
+  return c ;
 }
 
 
@@ -260,7 +312,9 @@ int term_compare ( term t1 ,
                 return 1;
             }
             else {
-                term_compare(t1->argument_first->t, t2->argument_first->t);
+                if(term_compare(t1->argument_first->t, t2->argument_first->t) == 0){
+                  term_compare(t1->argument_first->next->t, t2->argument_first->next->t);
+                }
             }
         }
     }

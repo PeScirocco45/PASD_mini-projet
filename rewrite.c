@@ -29,8 +29,16 @@ static char const * const symbol_valuation = "valuation" ;
  */
 static bool term_is_pattern ( term t ,
 			      term pattern ,
-			      term affectation ) {  
-  return false ;
+			      term affectation ) { 
+	assert(t != NULL);
+	assert(pattern != NULL);
+	assert(affectation != NULL);
+	if (term_contains_symbol (t, pattern->symbol)){
+		term var = term_unify (affectation);
+		term_replace_variable(t, var, pattern);
+		return true;
+	} 
+ 	return false ;
 }
 
 
@@ -44,6 +52,16 @@ static bool term_is_pattern ( term t ,
  */
 static void term_add_arg_sort_unique ( term t ,
 				       term arg )  { 
+	assert(t != NULL);
+	assert(arg != NULL);
+	if (! term_contains_symbol(t, arg->symbol)){
+		term_argument_traversal courant = term_argument_traversal_create(t);
+		int cpt = 0;
+		while (term_argument_traversal_has_next(courant) && (term_compare(courant->tls->t, arg)) == -1){
+			cpt ++;
+		}
+		term_add_argument_position(t,arg,cpt);
+	}
 }
 
 /*!
@@ -63,6 +81,16 @@ static void term_rewrite_rule ( term t_whole ,
 				term pattern ,
 				term replace ,
 				term results ) {  
+	assert(t_whole != NULL);
+	assert(t_current != NULL);
+	assert(pattern != NULL);
+	assert(replace != NULL);
+	assert(results != NULL);
+
+	if(term_is_pattern(t_current, pattern, replace)){
+		term_add_arg_sort_unique(t_current,replace);
+		results = t_whole;
+	}
 }
 
 
@@ -75,6 +103,7 @@ static void term_rewrite_rule ( term t_whole ,
  * Should be used for assert only
  */
 static bool rules_are_well_formed ( term t) { 
+
   return false ;
 }
 
@@ -82,4 +111,3 @@ static bool rules_are_well_formed ( term t) {
 term term_rewrite ( term t ) {  
   return NULL ;
 }
-
