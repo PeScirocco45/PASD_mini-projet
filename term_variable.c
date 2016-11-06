@@ -5,9 +5,34 @@
 # include "term_variable.h"
 
 
-bool term_is_variable ( term t ) {
+bool term_is_variable(term t) {
 	assert(t != NULL);
-  return ((term_get_arity(t) == 0) && (sstring_get_length(term_get_symbol(t)) >= 2) && (sstring_get_char(term_get_symbol(t),0) == '\''));
+	// Si t a une arité de 0 
+	// Et que son symbol est d'au moins de taille 2 avec pour premier caractère '\''
+  if ((term_get_arity(t) == 0) && (sstring_get_char(term_get_symbol(t), 0) == '\'') 
+  	&& (sstring_get_length(term_get_symbol(t)) >= 2)) {
+  	char pos1 = sstring_get_char(term_get_symbol(t), 1);
+  // Si le second caractère de son symbol est compris entre 'a' et 'z' ou 'A' et 'Z'
+  // ou est le caractère '_' 
+  	if (((pos1 >= 'a') && (pos1 <= 'z')) || ((pos1 >= 'A') && (pos1 <= 'Z')) 
+  		                                                   || (pos1 == '_')) {
+  		/* 
+  		 * Alors on regarde si les autres caractères de son symbol sont:
+  		 * compris entre 'a' et 'z' ou entre 'A' et 'Z' ou entre '0' et '9'
+  		 * ou est le caractère '_'
+  		 */
+  		int term_symbol_length = sstring_get_length(term_get_symbol(t));
+  		for (int i = 2; i < term_symbol_length - 1; i++) {
+  			char posi = sstring_get_char(term_get_symbol(t), i);
+  			if (!((posi >= 'a') && (posi <= 'z')) && !((posi >= 'A') && (posi <= 'Z')) 
+  				              	&& !((posi >= '0') && (posi <= '9')) && !(posi == '_')) {
+  				return false;
+  			}	
+  		}
+  		return true;
+  	}
+	}
+	return false;
 }
 
 

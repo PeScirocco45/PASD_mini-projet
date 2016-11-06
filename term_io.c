@@ -28,31 +28,28 @@ static inline void skip_space ( FILE * in ) {
  */
 term term_scan ( FILE * in ) {
   term nouv = NULL ;
-  sstring ss ;
+  sstring ss = sstring_create_empty() ;
+  sstring temp = sstring_create_empty() ;
   term * a = & nouv ;
   char c ;
-  int cpt ;
   if ( EOF != ( c = getc ( in ) ) ) {
     if ( !( c == '(' ) && !( c == ')') ) {
-      char * d = (char *)malloc(100 * sizeof(char)) ;
-      char * pt = d ;
       do{
-        printf( "%c" , c ) ;
-        cpt++ ;
-        * pt = c ;
-        pt++ ;
+          temp = sstring_create_string ( &c ) ;
+          sstring_concatenate(ss,temp);
       }while ( ' ' != ( c = getc ( in ) ) && EOF != c ) ;
       ungetc ( c , in ) ;
-      printf ( "%d" , cpt ) ;
-      ss = sstring_create_string ( d ) ;
       nouv = term_create ( ss ) ;
       skip_space ( in ) ;
+      sstring_destroy ( & ss ) ;
+      sstring_destroy ( & temp ) ;
     }
     if ( ( c = getc ( in ) ) == '(' ) {
       while ( EOF != ( c = getc ( in ) ) ) {
-          if (c == ')' ) {
-            break ;
-          }
+        if (c == ')' ) {
+          skip_space ( in ) ;
+          break ;
+        }
         ungetc ( c , in ) ;
         skip_space ( in ) ;
         term_add_argument_last ( * a , term_scan( in ) ) ;
@@ -94,15 +91,12 @@ static void term_print_expanded_rec(term const t, FILE* const out, int const dep
 	}
 	/*
 	 * Si le term a des arguments, on affiche " (\n" dans out
-	 * On affiche (2 espaces) * (depth + 1) dans out avec la fonction add_space_prefix
 	 * On creer un term_argument_traversal afin de parcourir la liste de ses arguments
 	 * On rappel la fonction récursivement avec chacun de ses arguements en sautant des lignes
 	 		et en indentant bien à chaque fois avec la fonction add_space_prefix
 	*/
 	if (term_get_arity(t) != 0) {
 		fputs(" (\n", out);
-		add_space_prefix(depth + 1, out);
-		term_print_expanded_rec(term_get_argument(t, 0), out, depth + 1);
 		term_argument_traversal arguments = term_argument_traversal_create(t);
 		while (term_argument_traversal_has_next(arguments)) {
 			add_space_prefix(depth + 1, out);
@@ -123,7 +117,7 @@ void term_print_expanded(term t, FILE* out) {
 }
 
 
-/*!
+/*
  * Recursive function called by \c term_print_compact .
  * \param t (sub-)term to print
  * \param out output stream to print to.
@@ -136,13 +130,12 @@ static void term_print_compact_rec(term const t, FILE* const out) {
 		fputc(sstring_get_char(symbol, i), out);
 	}
 	/*
-	 * Si le term a des arguments, on affiche " ( " dans out 
+	 * Si le term a des arguments, on affiche " (" dans out 
 	 * Puis on creer un term_argument_traversal afin de parcourir la liste de ses arguments
 	 * On rappel la fonction récursivement avec chacun de ses arguements
 	 */
 	if (term_get_arity(t) != 0) {
-		fputs(" ( ", out);
-		term_print_compact_rec(term_get_argument(t, 0), out);
+		fputs(" (", out);
 		term_argument_traversal arguments = term_argument_traversal_create(t);
 		while (term_argument_traversal_has_next(arguments)) {
 			fputs(" ", out);

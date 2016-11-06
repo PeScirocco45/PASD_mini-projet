@@ -61,8 +61,6 @@ static bool symbol_is_valild ( sstring const symbol ) {
   sstring_destroy(&ss2);
   sstring_destroy(&ss3);
   return res;
-
-
 }
 
 
@@ -70,7 +68,7 @@ term term_create ( sstring symbol ) {
   assert(! sstring_is_empty(symbol));
   assert (symbol_is_valild(symbol));
   term t = (term)malloc(sizeof(struct term_struct));
-  t->symbol = symbol;
+  t->symbol = sstring_copy(symbol);
   t->arity = 0;
   t->father = NULL;
   t->argument_last = NULL;
@@ -79,18 +77,15 @@ term term_create ( sstring symbol ) {
 }
 
 
-
 void term_destroy ( term * t ) {
   assert(t != NULL);
   sstring_destroy(&(*t)->symbol);
-  int cpt = 0;
   while(term_get_arity(*t) != 0){
-    term temp = term_extract_argument((*t),cpt);
+    term temp = term_extract_argument((*t),0);
     term_destroy(&temp);
-    (*t)->arity = (*t)->arity - 1;
-    cpt ++;
   }
   free(*t);
+  *t = NULL;
 }
 
 
@@ -114,45 +109,45 @@ term term_get_father ( term t ) {
 
 void term_add_argument_last ( term t ,
            term a ) {
- assert(t != NULL);
- assert(a != NULL);
- term_list l = (term_list)malloc(sizeof(struct term_list_struct));
- l -> t = a ;
- l -> previous = NULL ;
- l -> next = NULL ;
- if ( t -> arity == 0 ) {
-   t -> argument_first = l ;
-   t -> argument_last = l ;
-   t -> arity = 1 ;
- } else {
- t -> argument_last -> next = l ;
- l -> previous = t -> argument_last ;
- t -> argument_last = l ;
- a -> father = t ;
- t -> arity = t -> arity + 1 ;
- }
-}
+  assert(t != NULL);
+  assert(a != NULL);
+  term_list l = (term_list)malloc(sizeof(struct term_list_struct));
+  l -> t = a ;
+  l -> previous = NULL ;
+  l -> next = NULL ;
+  if ( t -> arity == 0 ) {
+    t -> argument_first = l ;
+    t -> argument_last = l ;
+    t -> arity = 1 ;
+  } else {
+  t -> argument_last -> next = l ;
+  l -> previous = t -> argument_last ;
+  t -> argument_last = l ;
+  a -> father = t ;
+    t -> arity = t -> arity + 1 ;
+    }
+} 
 
 
 void term_add_argument_first ( term t ,
              term a ) {
- assert(t != NULL);
- assert(a != NULL);
- term_list l = (term_list)malloc(sizeof(struct term_list_struct));
- l -> t = a ;
- l -> previous = NULL ;
- l -> next = NULL ;
- if ( t -> arity == 0 ) {
-   t -> argument_first = l ;
-   t -> argument_last = l ;
-   t -> arity = 1 ;
- } else {
- t -> argument_first -> previous = l ;
- l -> next = t -> argument_first ;
- t -> argument_first = l ;
- a -> father = t ;
- t -> arity = t -> arity + 1 ;
- }
+  assert(t != NULL);
+  assert(a != NULL);
+  term_list l = (term_list)malloc(sizeof(struct term_list_struct));
+  l -> t = a ;
+  l -> previous = NULL ;
+  l -> next = NULL ;
+  if ( t -> arity == 0 ) {
+    t -> argument_first = l ;
+     t -> argument_last = l ;
+     t -> arity = 1 ;
+  } else {
+  t -> argument_first -> previous = l ;
+  l -> next = t -> argument_first ;
+  t -> argument_first = l ;
+   a -> father = t ;
+   t -> arity = t -> arity + 1 ;
+  }
 }
 
 
@@ -171,17 +166,19 @@ void term_add_argument_position ( term t ,
         term_add_argument_last(t,a);
       }
       else {
-        term_list temp = NULL;
-        term_list temp2 = NULL;
-        temp->t = t;
+        term_list temp = (term_list)malloc(sizeof(struct term_list_struct));
+        term_list temp2 = (term_list)malloc(sizeof(struct term_list_struct));
+        temp = t-> argument_first;
         temp2->t = a;
         for (int i=1; i<pos; i++){
           temp = temp->next;
         }
-        temp->next->previous = temp;
-        temp->next = temp;
+        temp -> next -> previous = temp2 ;
+        temp2 -> next = temp -> next ;
+        temp -> next = temp2 ;
+        temp2 -> previous = temp ;
+        t->arity = t->arity +1;
       }
-     t->arity = t->arity +1;
   }
 }
 
@@ -190,7 +187,10 @@ bool term_contains_symbol ( term t ,
           sstring symbol ) {
   assert(t != NULL);
   assert(symbol != NULL);
-  term_list temp = NULL;
+  term_list temp = (term_list)malloc(sizeof(struct term_list_struct));
+  if ( term_get_arity ( t ) == 0 ) {
+    return false;
+  }
   temp->t = t->argument_last->t;
   if (sstring_compare(t->symbol, symbol) == 0) {
     return true;
@@ -224,25 +224,29 @@ term term_extract_argument ( term t ,
   term_list pt = t -> argument_first ;
   int cpt = 0 ;
   while ( cpt != pos ) {
-    * pt = * pt -> next ;
+    pt = pt -> next ;
     cpt++ ;
   }
   if ( term_get_arity ( t ) == 1 ) {
     t -> argument_first = NULL ;
     t -> argument_last = NULL ;
+    t -> arity = ( t -> arity ) - 1 ;
   } else {
     if ( cpt == 0 ) {
       pt -> next -> previous = NULL ;
       t -> argument_first = pt -> next ;
+      t -> arity = ( t -> arity ) - 1 ;
 
     } else if ( cpt == ( term_get_arity ( t ) - 1 ) ) {
       pt -> previous -> next = NULL ;
       t -> argument_last = pt -> previous ;
+      t -> arity = ( t -> arity ) - 1 ;
     } else {
       pt -> next -> previous = pt -> previous ;
       pt -> previous -> next = pt -> next ;
       pt -> next = NULL ;
       pt -> previous = NULL ;
+      t -> arity = ( t -> arity ) - 1 ;
     }
   }
   term res = term_copy ( pt -> t ) ;
@@ -253,14 +257,17 @@ term term_extract_argument ( term t ,
 
 term term_copy ( term t ) {
     assert(t != NULL);
-    term nouv = term_create(t->symbol);
-    nouv->father = t->father;
-	term_argument_traversal courant = term_argument_traversal_create(t);
-	while(term_argument_traversal_has_next(courant)){
+  term nouv = term_create(t->symbol);
+  nouv->father = t->father;
+  if ( term_get_arity ( t ) == 0 ) {
+    return nouv;
+  }
+  term_argument_traversal courant = term_argument_traversal_create(t);
+  while(term_argument_traversal_has_next(courant)){
         term_add_argument_last(nouv,term_copy(term_argument_traversal_get_next(courant)));
-	}
-	term_argument_traversal_destroy(&courant);
-	return nouv;
+  }
+  term_argument_traversal_destroy(&courant);
+  return nouv;
 }
 
 
@@ -269,12 +276,12 @@ term term_copy_translate_position ( term t ,
   assert(t != NULL);
   assert(*loc != NULL);
   term c = term_copy(t);
-  if(term_contains_symbol(c,*loc->symbol)){
+  if(term_contains_symbol(c,term_get_symbol(*loc))){
     term_argument_traversal courant = term_argument_traversal_create(c);
     while(term_argument_traversal_has_next(courant)){
-        courant = term_argument_traversal_next(courant);
-        if(sstring_compare(courant->symbol,*loc->symbol)){
-          *loc = courant;
+        term actual = term_argument_traversal_get_next(courant);
+        if(sstring_compare(actual->symbol,term_get_symbol(*loc))){
+          *loc = actual;
           return c;
         }
     }
@@ -296,32 +303,31 @@ void term_replace_copy ( term t_destination ,
 
 int term_compare ( term t1 ,
        term t2 ) {
-    assert(t1 != NULL);
-    assert(t2 != NULL);
+  assert(t1 != NULL);
+  assert(t2 != NULL);
   if (sstring_compare(t1->symbol, t2->symbol) == -1){
-        return -1;
-  }
-  else {
+    return -1;
+  } else {
     if (sstring_compare(t1->symbol, t2->symbol) == 1){
-        return 1;
-    }
-    else {
-        if (term_get_arity(t1)<term_get_arity(t2)){
-            return -1;
+      return 1;
+    } else {
+      if (term_get_arity(t1)<term_get_arity(t2)){
+        return -1;
+      } else {
+        if (term_get_arity(t1)>term_get_arity(t2)){
+          return 1;
+        } else {
+          if ( term_get_arity ( t1 ) == 0 ) {
+            return 0;
+          }
+          if ( term_compare(t1->argument_first->t, t2->argument_first->t) == 0 ) {
+            term_compare(t1->argument_first->next->t, t2->argument_first->next->t);
+          }
         }
-        else {
-            if (term_get_arity(t1)>term_get_arity(t2)){
-                return 1;
-            }
-            else {
-                if(term_compare(t1->argument_first->t, t2->argument_first->t) == 0){
-                  term_compare(t1->argument_first->next->t, t2->argument_first->next->t);
-                }
-            }
-        }
+      }
     }
-   }
-   return 0;
+  }
+  return 0;
 }
 
 
@@ -339,7 +345,8 @@ term_argument_traversal term_argument_traversal_create ( term t ) {
   term_argument_traversal nouv = ( term_argument_traversal ) malloc ( sizeof ( struct term_argument_traversal_struct ) ) ;
   assert ( NULL != nouv ) ;
   // On donne pour valeur à nouv -> tls la valeur de argument_first de t
-  nouv -> tls = t -> argument_first ;
+  nouv -> tls = ( term_list ) malloc ( sizeof ( struct term_list_struct ) ) ;
+  nouv -> tls -> next = t -> argument_first ;
   return nouv ;
 }
 

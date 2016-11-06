@@ -49,9 +49,8 @@ void do_replacement ( char const * const file_name ) {
   putchar ( '\n' ) ;
   
   term tt = term_get_argument ( t , 0 ) ;
-  term_replace_variable ( tt ,
-			  term_get_symbol ( term_get_argument ( t , 1 ) ) ,
-			  term_get_argument ( t , 2 ) ) ;
+  term_replace_variable ( tt ,term_get_symbol ( term_get_argument ( t , 1 ) ) ,
+			                                           term_get_argument ( t , 2 ) ) ;
   
   term_print_compact ( tt , stdout ) ;
   putchar ( '\n' ) ;
