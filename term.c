@@ -126,6 +126,7 @@ void term_add_argument_last ( term t ,
    t -> arity = 1 ;
  } else {
  t -> argument_last -> next = l ;
+ l -> previous = t -> argument_last ;
  t -> argument_last = l ;
  a -> father = t ;
  t -> arity = t -> arity + 1 ;
@@ -147,6 +148,7 @@ void term_add_argument_first ( term t ,
    t -> arity = 1 ;
  } else {
  t -> argument_first -> previous = l ;
+ l -> next = t -> argument_first ;
  t -> argument_first = l ;
  a -> father = t ;
  t -> arity = t -> arity + 1 ;
