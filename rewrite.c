@@ -30,15 +30,37 @@ static char const * const symbol_valuation = "valuation" ;
 static bool term_is_pattern ( term t ,
 			      term pattern ,
 			      term affectation ) { 
-	/*assert(t != NULL);
+	assert(t != NULL);
 	assert(pattern != NULL);
 	assert(affectation != NULL);
-	if (term_contains_symbol (t, pattern->symbol)){
-		term var = term_unify (affectation);
-		term_replace_variable(t, var, pattern);
-		return true;
-	}*/
- 	return false ;
+
+	bool ispattern;
+	term unifie;
+
+	sstring unif = sstring_create_string("unify");
+	sstring egal = sstring_create_string("=");
+	sstring inc = sstring_create_string("incompatible");
+	sstring v = sstring_create_string("val");
+	term uni = term_create(unif);
+	term equal = term_create(egal);
+	term incomp = term_create(inc);
+	term val = term_create(v);
+	sstring_destroy(&unif);
+	sstring_destroy(&egal);
+	sstring_destroy(&inc);
+	sstring_destroy(&v);
+	term_add_argument_last(equal, t);
+	term_add_argument_last(equal, pattern);
+	term_add_argument_first(uni, equal);
+
+	if (! term_compare(t,pattern) == 0) {
+		ispattern = true;
+		unifie = term_unify(uni);
+		if (term_compare(unifie, incomp) == 0){
+			ispattern = false;
+		}
+	}
+	return ispattern;
 }
 
 
@@ -52,16 +74,17 @@ static bool term_is_pattern ( term t ,
  */
 static void term_add_arg_sort_unique ( term t ,
 				       term arg )  { 
-	/*assert(t != NULL);
+	assert(t != NULL);
 	assert(arg != NULL);
-	if (! term_contains_symbol(t, arg->symbol)){
-		term_argument_traversal courant = term_argument_traversal_create(t);
-		int cpt = 0;
-		while (term_argument_traversal_has_next(courant) && (term_compare(courant->tls->t, arg)) == -1){
-			cpt ++;
-		}
-		term_add_argument_position(t,arg,cpt);
-	}*/
+	term_argument_traversal courant = term_argument_traversal_create(t);
+	int cpt = 0;
+	term comp;
+	while (term_argument_traversal_has_next(courant) && (term_compare((comp = term_argument_traversal_get_next(courant)), arg)) == -1){
+		cpt ++;
+	}
+	if (! (term_compare(comp, arg)))
+	term_add_argument_position(t,arg,cpt);
+	
 }
 
 /*!
@@ -81,16 +104,16 @@ static void term_rewrite_rule ( term t_whole ,
 				term pattern ,
 				term replace ,
 				term results ) {  
-	/*assert(t_whole != NULL);
+	assert(t_whole != NULL);
 	assert(t_current != NULL);
 	assert(pattern != NULL);
 	assert(replace != NULL);
 	assert(results != NULL);
 
-	if(term_is_pattern(t_current, pattern, replace)){
-		term_add_arg_sort_unique(t_current,replace);
-		results = t_whole;
-	}*/
+	if (term_compare(t_current, pattern) == 0) {
+		term_replace_copy(t_current, replace);
+		term_add_arg_sort_unique(results, t_whole);
+	}
 }
 
 
@@ -103,11 +126,48 @@ static void term_rewrite_rule ( term t_whole ,
  * Should be used for assert only
  */
 static bool rules_are_well_formed ( term t) { 
-
-  return false ;
+	if (term_get_arity(t) < 2){
+		return false;
+	}
+	else {
+		term courant;
+		sstring fleche = sstring_create_string(symbol_rule);
+		for (int i=0; i<term_get_arity(t)-1; i++){
+			courant = term_get_argument(t, i);
+			if(sstring_compare(term_get_symbol(courant), fleche) != 0){
+				return false;
+			}
+			else {
+				if (term_get_arity(t) != 2){
+					return false;
+				}
+			}
+		}
+	}
+	return true;
 }
 
 
 term term_rewrite ( term t ) {  
+	assert(rules_are_well_formed(t));
+
+	/*int n = 1;
+	term courant = t;
+	term pattern;
+	term solution = term_create(sstring_create_string(symbol_results));
+	if (sstring_get_char(term_get_symbol(t), 3) != "-"){
+		n = sstring_get_char(term_get_symbol(t), 3);
+	}
+	for (int i=0; i<n; i++){
+		int cpt = 0;
+		while (cpt != term_get_arity(t)){
+			if (term_is_pattern(t, pattern, solution)){
+				term_add_arg_sort_unique(solution,courant);
+			}
+			cpt ++;
+		}
+		term_rewrite(solution);
+	}*/
+
   return NULL ;
 }

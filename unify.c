@@ -40,7 +40,7 @@ term term_unify ( term t ) {
 	term_argument_traversal traversal_t = term_argument_traversal_create(t);
 	term_argument_traversal traversal_equal = NULL;
 
-	//On crée les termes qui serviront à récupéré ceux renvoyés par le parcours
+	//On crée les termes qui serviront à récupérer ceux renvoyés par le parcours
 	term actual_t = NULL;
 	term actual_equal = NULL;
 
@@ -62,7 +62,7 @@ term term_unify ( term t ) {
 			//On compare si les deux arguments sont égaux, si oui :
 			if((term_compare(term_get_argument(actual_equal,0),term_get_argument(actual_equal,1))==0)){
 
-				//On regarde si ce ne sont pas des variables si oui : on regarde les arguments des deux symbol qui ont été détecté égaux
+				//On regarde si ce ne sont pas des variables, si oui : on regarde les arguments des deux symbol qui ont été détectés égaux
 				if(!term_is_variable(term_get_argument(actual_equal,0))){
 					c1=term_get_argument(actual_equal,0);
 					c2=term_get_argument(actual_equal,1);
@@ -119,7 +119,7 @@ term term_unify ( term t ) {
 						term_add_argument_last(val,c1);
 						term_add_argument_last(val,c2);
 					}
-				//Sinon on renvoie l'égalité : les deux sont bien compatible
+				//Sinon on renvoie l'égalité : les deux sont bien compatibles
 				}else{
 					val = term_create(sstring_symbol_val);
 					term_add_argument_last(solution,val);

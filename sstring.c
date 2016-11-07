@@ -45,7 +45,7 @@ sstring sstring_create_empty ( void ) {
 sstring sstring_create_string(char const* st) { 
 	assert(NULL != st);
 	sstring res = sstring_create_empty();
-	//Si *st n'est pas le carractère vide 
+	//Si *st n'est pas le caractère vide 
 	if (*st != 0) {
 		res->length = strlen(st);
 		res->chars = (char*) malloc(sizeof(char) * (res->length));
@@ -160,7 +160,7 @@ bool sstring_is_integer(sstring ss, int* n_pt) {
   if (sstring_is_empty(ss)) {
   	return false;
   }
-  // Sinon on parcour ss-chars 
+  // Sinon on parcourt ss-chars 
   // On vérifie qu'il contient des chiffres avec isdigit
   for(unsigned int i = 0; i < ss->length; i++) {
     if (isdigit(ss->chars[i])) {

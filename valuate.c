@@ -82,7 +82,7 @@ term term_valuate ( term t ) {
 		var_list -> next = NULL;
 		v = term_valuate_inner(v,var_list);
 		return v;
-    //Sinon on cherche un terme correspondant parmis les arguments et sous-arguments du terme donnée en paramètre
+    //Sinon on cherche un terme correspondant parmis les arguments et sous-arguments du terme donné en paramètre
 	}else{
 		term cp = term_copy(term_get_argument(t,2));
 		term_argument_traversal traversal = term_argument_traversal_create(t);

@@ -47,7 +47,7 @@ void term_replace_variable ( term t ,
 	//Cas où le terme est une variable (Cas d'arrêt)
 	if (term_is_variable(t)) {
 			term_replace_copy(t,value);
-	//Cas général où l'on parcours la liste d'arguments d'un terme et on applique la foncton récursivement
+	//Cas général où l'on parcourt la liste d'arguments d'un terme et on applique la fonction récursivement
 	}else{
 		term_argument_traversal tat = term_argument_traversal_create(t);
 		while(term_argument_traversal_has_next(tat)){

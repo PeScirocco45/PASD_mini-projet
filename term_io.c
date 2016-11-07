@@ -35,7 +35,7 @@ term term_scan ( FILE * in ) {
   // Le in fait office de while grace au getc
   // Tant qu'on est pas à la fin du fichier
   if ( EOF != ( c = getc ( in ) ) ) {
-    // Si ce n'est pas ( ou ) on a un term, sinon des arguments
+    // Si ce n'est pas '(' ou ')' on a un term, sinon des arguments
     if ( !( c == '(' ) && !( c == ')') ) {
       do{
         // On vérifie si le caractere n'est pas un retour chariot (utile dans term_variable)
@@ -50,9 +50,9 @@ term term_scan ( FILE * in ) {
       sstring_destroy ( & ss ) ;
       sstring_destroy ( & temp ) ;
     }
-    // Si ( les arguments commencement ici
+    // Si '(' les arguments commencent ici
     if ( ( c = getc ( in ) ) == '(' ) {
-      // On parcours in tant que ), sinon on crée un ou des argument(s)
+      // On parcours in tant que ')', sinon on crée un ou des argument(s)
       while ( EOF != ( c = getc ( in ) ) ) {
         if (c == ')' ) {
           skip_space ( in ) ;
@@ -99,8 +99,8 @@ static void term_print_expanded_rec(term const t, FILE* const out, int const dep
 	}
 	/*
 	 * Si le term a des arguments, on affiche " (\n" dans out
-	 * On creer un term_argument_traversal afin de parcourir la liste de ses arguments
-	 * On rappel la fonction récursivement avec chacun de ses arguements en sautant des lignes
+	 * On crée un term_argument_traversal afin de parcourir la liste de ses arguments
+	 * On rappelle la fonction récursivement avec chacun de ses arguments en sautant des lignes
 	 		et en indentant bien à chaque fois avec la fonction add_space_prefix
 	*/
 	if (term_get_arity(t) != 0) {
@@ -139,8 +139,8 @@ static void term_print_compact_rec(term const t, FILE* const out) {
 	}
 	/*
 	 * Si le term a des arguments, on affiche " (" dans out
-	 * Puis on creer un term_argument_traversal afin de parcourir la liste de ses arguments
-	 * On rappel la fonction récursivement avec chacun de ses arguements
+	 * Puis on crée un term_argument_traversal afin de parcourir la liste de ses arguments
+	 * On rappelle la fonction récursivement avec chacun de ses arguements
 	 */
 	if (term_get_arity(t) != 0) {
 		fputs(" (", out);

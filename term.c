@@ -171,7 +171,7 @@ void term_add_argument_position ( term t ,
     if (pos == term_get_arity(t)){
       term_add_argument_last(t,a);
     } else {
-      // Sinon la position est compris entre 1 et arity - 1
+      // Sinon la position est comprise entre 1 et arity - 1
       term_list temp = (term_list)malloc(sizeof(struct term_list_struct));
       term_list temp2 = (term_list)malloc(sizeof(struct term_list_struct));
       temp = t-> argument_first;
@@ -357,7 +357,7 @@ struct term_argument_traversal_struct {
 
 term_argument_traversal term_argument_traversal_create ( term t ) {
   assert ( NULL != t ) ;
-  // On creer un term_argument_traversal nouv
+  // On crée un term_argument_traversal nouv
   term_argument_traversal nouv = ( term_argument_traversal ) malloc ( sizeof ( struct term_argument_traversal_struct ) ) ;
   assert ( NULL != nouv ) ;
   // On donne à nouv -> tls -> next la valeur de argument_first de t
@@ -385,7 +385,7 @@ bool term_argument_traversal_has_next ( term_argument_traversal tt ) {
 
 term term_argument_traversal_get_next ( term_argument_traversal tt ) {
   assert ( NULL != tt ) ;
-  // On t -> tls prend pour valeur next de tt -> tls
+  // t -> tls prend pour valeur next de tt -> tls
   tt -> tls = tt -> tls -> next;
   return tt -> tls -> t ;
 }
