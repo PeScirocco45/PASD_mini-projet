@@ -294,10 +294,8 @@ void term_replace_copy ( term t_destination ,
        term t_source ) {
     assert(t_destination != NULL);
     assert(t_source != NULL);
-    term * add = &t_destination;
-    t_source->father = t_destination->father;
     term_destroy(&t_destination);
-    *add = t_source;
+    t_destination = term_copy(t_source);
 }
 
 

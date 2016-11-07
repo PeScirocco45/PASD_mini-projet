@@ -35,8 +35,10 @@ term term_scan ( FILE * in ) {
   if ( EOF != ( c = getc ( in ) ) ) {
     if ( !( c == '(' ) && !( c == ')') ) {
       do{
-          temp = sstring_create_string ( &c ) ;
-          sstring_concatenate(ss,temp);
+          if (!( c == '\n')) {
+          	temp = sstring_create_string ( &c ) ;
+          	sstring_concatenate(ss,temp);
+          }
       }while ( ' ' != ( c = getc ( in ) ) && EOF != c ) ;
       ungetc ( c , in ) ;
       nouv = term_create ( ss ) ;
