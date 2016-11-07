@@ -32,13 +32,17 @@ term term_scan ( FILE * in ) {
   sstring temp = sstring_create_empty() ;
   term * a = & nouv ;
   char c ;
+  // Le in fait office de while grace au getc
+  // Tant qu'on est pas à la fin du fichier
   if ( EOF != ( c = getc ( in ) ) ) {
+    // Si ce n'est pas ( ou ) on a un term, sinon des arguments
     if ( !( c == '(' ) && !( c == ')') ) {
       do{
-          if (!( c == '\n')) {
-          	temp = sstring_create_string ( &c ) ;
-          	sstring_concatenate(ss,temp);
-          }
+        // On vérifie si le caractere n'est pas un retour chariot (utile dans term_variable)
+        if ( ! ( c == '\n' ) ) {
+          temp = sstring_create_string ( &c ) ;
+          sstring_concatenate(ss,temp);
+        }
       }while ( ' ' != ( c = getc ( in ) ) && EOF != c ) ;
       ungetc ( c , in ) ;
       nouv = term_create ( ss ) ;
@@ -46,7 +50,9 @@ term term_scan ( FILE * in ) {
       sstring_destroy ( & ss ) ;
       sstring_destroy ( & temp ) ;
     }
+    // Si ( les arguments commencement ici
     if ( ( c = getc ( in ) ) == '(' ) {
+      // On parcours in tant que ), sinon on crée un ou des argument(s)
       while ( EOF != ( c = getc ( in ) ) ) {
         if (c == ')' ) {
           skip_space ( in ) ;
@@ -132,7 +138,7 @@ static void term_print_compact_rec(term const t, FILE* const out) {
 		fputc(sstring_get_char(symbol, i), out);
 	}
 	/*
-	 * Si le term a des arguments, on affiche " (" dans out 
+	 * Si le term a des arguments, on affiche " (" dans out
 	 * Puis on creer un term_argument_traversal afin de parcourir la liste de ses arguments
 	 * On rappel la fonction récursivement avec chacun de ses arguements
 	 */

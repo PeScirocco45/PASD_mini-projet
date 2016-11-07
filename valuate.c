@@ -1,3 +1,4 @@
+# include <stdlib.h>
 # include <assert.h>
 # include <stdbool.h>
 #include <ctype.h>
@@ -40,12 +41,13 @@ static sstring ss_set = NULL ;
  */
 static term term_valuate_inner ( term t ,
 				 variable_definition_list var_list ) {
+        sstring sstring_set = sstring_create_string(symbol_set);
 		term_replace_variable(t,ss_set,var_list->value);
 		term_argument_traversal traversal = term_argument_traversal_create(t);
 		term actual = NULL;
 		while(term_argument_traversal_has_next(traversal)){
 			actual = term_argument_traversal_get_next(traversal);
-			if (term_get_arity(actual>2) && term_contains_symbol(actual,symbol_set)){
+			if ((term_get_arity(actual)>2) && term_contains_symbol(actual,sstring_set)){
 				variable_definition_list var_list2 = (variable_definition_list)malloc(sizeof(struct variable_definition_list_struct));
 				var_list2 -> variable = sstring_copy(term_get_symbol(term_get_argument(t,0)));
 				var_list2 -> value = term_create(ss_set);
@@ -55,13 +57,23 @@ static term term_valuate_inner ( term t ,
 				term_valuate_inner(actual, var_list);
 			}
 		}
+		sstring * sstring_to_destroy = NULL;
+        *sstring_to_destroy = sstring_set;
+        sstring_destroy(sstring_to_destroy);
+        sstring_to_destroy = NULL;
+		term_argument_traversal * to_destroy = NULL;
+		*to_destroy = traversal;
+        term_argument_traversal_destroy(to_destroy);
+        to_destroy = NULL;
 		return t;
 }
 
 
 
-term term_valuate ( term t ) { 
-	if(term_get_arity(t)>2 && term_contains_symbol(t,symbol_set)){
+term term_valuate ( term t ) {
+    //Si le on évalue le terme de la forme où valuate s'exécute alors
+    sstring sstring_set = sstring_create_string(symbol_set);
+	if(term_get_arity(t)>2 && term_contains_symbol(t,sstring_set)){
 		term v = term_copy(term_get_argument(t,2));
 		ss_set = sstring_copy(term_get_symbol(term_get_argument(t,1)));
 		variable_definition_list var_list = (variable_definition_list)malloc(sizeof(struct variable_definition_list_struct));
@@ -70,14 +82,23 @@ term term_valuate ( term t ) {
 		var_list -> next = NULL;
 		v = term_valuate_inner(v,var_list);
 		return v;
+    //Sinon on cherche un terme correspondant parmis les arguments et sous-arguments du terme donnée en paramètre
 	}else{
 		term cp = term_copy(term_get_argument(t,2));
 		term_argument_traversal traversal = term_argument_traversal_create(t);
 		term actual = NULL;
 		while(term_argument_traversal_has_next(traversal)){
 			actual = term_argument_traversal_get_next(traversal);
-			return term_valuate(actual);
+			term_argument_traversal * to_destroy = NULL;
+			*to_destroy = traversal;
+			term_argument_traversal_destroy(to_destroy);
+			to_destroy = NULL;
+			sstring * sstring_to_destroy = NULL;
+            *sstring_to_destroy = sstring_set;
+            sstring_destroy(sstring_to_destroy);
+            sstring_to_destroy = NULL;
 		}
+		return term_valuate(actual);
 	}
 }
 
